@@ -34,7 +34,7 @@ jobs:
       - name: Build
         run: |
           IMAGE="${{ vars.HARBOR_REGISTRY }}/demo/nginx"
-          docker build -t "${IMAGE}:${{ github.sha }}" -t "${IMAGE}:latest" .
+          docker build -f micro-services/Dockerfile -t "${IMAGE}:${{ github.sha }}" -t "${IMAGE}:latest" micro-services
 
       - name: Push
         run: |
