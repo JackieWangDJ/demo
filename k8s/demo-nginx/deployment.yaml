@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-nginx
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-nginx
+  template:
+    metadata:
+      labels:
+        app: demo-nginx
+    spec:
+      imagePullSecrets:
+        - name: harbor-pull
+      containers:
+        - name: app
+          image: harbor.local:8443/demo/nginx:latest
+          ports:
+            - containerPort: 8888
