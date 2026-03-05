@@ -1,0 +1,43 @@
+name: build-and-push
+
+on:
+  push:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sanity check
+        run: |
+          whoami
+          uname -a
+          docker version
+          docker info --format 'Server={{.ServerVersion}} OS={{.OperatingSystem}} RootDir={{.DockerRootDir}}'
+
+      - name: Install CA for Harbor
+        run: |
+          echo "${{ secrets.HARBOR_CA_B64 }}" | base64 -d | sudo tee /usr/local/share/ca-certificates/harbor-ca.crt >/dev/null
+          sudo update-ca-certificates
+
+      - name: Docker login
+        run: |
+          echo "${{ secrets.HARBOR_PASSWORD }}" | docker login "${{ vars.HARBOR_REGISTRY }}" \
+            -u "${{ secrets.HARBOR_USERNAME }}" --password-stdin
+
+      - name: Build
+        run: |
+          IMAGE="${{ vars.HARBOR_REGISTRY }}/demo/nginx"
+          docker build -t "${IMAGE}:${{ github.sha }}" -t "${IMAGE}:latest" .
+
+      - name: Push
+        run: |
+          IMAGE="${{ vars.HARBOR_REGISTRY }}/demo/nginx"
+          docker push "${IMAGE}:${{ github.sha }}"
+          docker push "${IMAGE}:latest"
