@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: [self-hosted, wsl]
 
     steps:
       - uses: actions/checkout@v4
