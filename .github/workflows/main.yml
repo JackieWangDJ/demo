@@ -1,11 +1,11 @@
-name: build-and-push
+name: build-push-gitops
 
 on:
   push:
     branches: [ "master" ]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -23,21 +23,35 @@ jobs:
 
       - name: Install CA for Harbor
         run: |
-          echo "${{ secrets.HARBOR_CA_B64 }}" | base64 -d | sudo tee /usr/local/share/ca-certificates/harbor-ca.crt >/dev/null
-          sudo update-ca-certificates
+          echo "${{ secrets.HARBOR_CA_B64 }}" | base64 -d | sudo /usr/bin/tee /usr/local/share/ca-certificates/harbor-ca.crt >/dev/null
+          sudo /usr/sbin/update-ca-certificates
 
       - name: Docker login
         run: |
           echo "${{ secrets.HARBOR_PASSWORD }}" | docker login "${{ vars.HARBOR_REGISTRY }}" \
             -u "${{ secrets.HARBOR_USERNAME }}" --password-stdin
 
-      - name: Build
+      # 这里按你的项目目录调整：如果 Dockerfile 在 micro-services/ 下，就用这一段
+      - name: Build image
         run: |
           IMAGE="${{ vars.HARBOR_REGISTRY }}/demo/nginx"
           docker build -f micro-services/Dockerfile -t "${IMAGE}:${{ github.sha }}" -t "${IMAGE}:latest" micro-services
 
-      - name: Push
+      - name: Push image
         run: |
           IMAGE="${{ vars.HARBOR_REGISTRY }}/demo/nginx"
           docker push "${IMAGE}:${{ github.sha }}"
           docker push "${IMAGE}:latest"
+
+      - name: Update k8s manifest image tag (GitOps)
+        run: |
+          FILE="k8s/demo-nginx/deployment.yaml"
+          IMAGE="${{ vars.HARBOR_REGISTRY }}/demo/nginx"
+          # 把 image: ...:xxx 替换成当前 sha
+          sed -i "s|image: ${IMAGE}:.*|image: ${IMAGE}:${{ github.sha }}|g" "$FILE"
+
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add "$FILE"
+          git commit -m "chore: bump demo-nginx image to ${{ github.sha }}" || exit 0
+          git push
