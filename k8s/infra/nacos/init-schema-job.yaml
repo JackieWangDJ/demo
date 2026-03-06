@@ -72,6 +72,25 @@ spec:
               CREATE UNIQUE INDEX IF NOT EXISTS uk_configinfobeta_datagrouptenant
                 ON config_info_beta (data_id, group_id, tenant_id);
 
+              CREATE TABLE IF NOT EXISTS config_info_gray (
+                id BIGSERIAL PRIMARY KEY,
+                data_id VARCHAR(255) NOT NULL,
+                group_id VARCHAR(128) NOT NULL,
+                tenant_id VARCHAR(128) DEFAULT '',
+                gray_name VARCHAR(128) NOT NULL,
+                gray_rule TEXT,
+                app_name VARCHAR(128),
+                content TEXT NOT NULL,
+                md5 VARCHAR(32),
+                gmt_create TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                gmt_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                src_user TEXT,
+                src_ip VARCHAR(50),
+                encrypted_data_key TEXT
+              );
+              CREATE UNIQUE INDEX IF NOT EXISTS uk_configinfogray_datagrouptenantgray
+                ON config_info_gray (data_id, group_id, tenant_id, gray_name);
+
               CREATE TABLE IF NOT EXISTS config_info_tag (
                 id BIGSERIAL PRIMARY KEY,
                 data_id VARCHAR(255) NOT NULL,
