@@ -33,12 +33,21 @@ spec:
           controllerMechanism: PLAIN
         controller:
           replicaCount: 1
+          heapOpts: -Xms512m -Xmx512m
           persistence:
             enabled: true
             size: 8Gi
-          resourcesPreset: nano
+          resources:
+            requests:
+              cpu: 250m
+              memory: 1Gi
+            limits:
+              cpu: "1"
+              memory: 2Gi
         broker:
           replicaCount: 0
+        config:
+          log.cleaner.enable: false
         service:
           type: ClusterIP
   destination:
