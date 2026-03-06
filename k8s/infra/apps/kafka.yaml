@@ -35,7 +35,7 @@ spec:
           replicaCount: 1
           controllerOnly: false
           heapOpts: -Xms384m -Xmx384m
-          config:
+          overrideConfiguration:
             log.cleaner.enable: "false"
             offsets.topic.replication.factor: "1"
             transaction.state.log.replication.factor: "1"
