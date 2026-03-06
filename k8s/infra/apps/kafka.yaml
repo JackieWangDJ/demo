@@ -52,14 +52,10 @@ spec:
             size: 8Gi
         broker:
           replicaCount: 0
-        externalAccess:
-          enabled: true
-          controller:
-            forceExpose: true
-            service:
-              type: NodePort
-              nodePorts:
-                - 30092
+        service:
+          type: NodePort
+          nodePorts:
+            client: "30092"
   destination:
     server: https://kubernetes.default.svc
     namespace: infra
