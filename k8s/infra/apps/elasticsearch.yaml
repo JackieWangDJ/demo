@@ -1,0 +1,67 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: infra-elasticsearch
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: elasticsearch
+    targetRevision: 22.1.6
+    helm:
+      values: |
+        global:
+          security:
+            allowInsecureImages: true
+        security:
+          enabled: false
+          tls:
+            restEncryption: false
+        image:
+          repository: bitnamilegacy/elasticsearch
+        sysctlImage:
+          repository: bitnamilegacy/os-shell
+        volumePermissions:
+          image:
+            repository: bitnamilegacy/os-shell
+        extraConfig:
+          node:
+            store:
+              allow_mmap: false
+        master:
+          masterOnly: false
+          replicaCount: 1
+          heapSize: 384m
+          resources:
+            requests:
+              cpu: 100m
+              memory: 384Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          persistence:
+            enabled: true
+            size: 8Gi
+        data:
+          replicaCount: 0
+        coordinating:
+          replicaCount: 0
+        ingest:
+          enabled: false
+          replicaCount: 0
+        service:
+          type: NodePort
+          nodePorts:
+            restAPI: "30920"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: infra
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
