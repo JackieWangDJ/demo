@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nacos
+  namespace: infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nacos
+  template:
+    metadata:
+      labels:
+        app: nacos
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: bitnami/postgresql:16
+          env:
+            - name: PGPASSWORD
+              value: Sherlock8962.
+          command:
+            - /bin/bash
+            - -ec
+            - |
+              until psql -h infra-postgres-postgresql -U nacos -d nacos -c 'select 1' >/dev/null 2>&1; do
+                echo "waiting for postgres..."
+                sleep 5
+              done
+      containers:
+        - name: nacos
+          image: nacos/nacos-server:v2.5.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8848
+          env:
+            - name: MODE
+              value: standalone
+            - name: PREFER_HOST_MODE
+              value: hostname
+            - name: SPRING_DATASOURCE_PLATFORM
+              value: postgresql
+            - name: DB_NUM
+              value: "1"
+            - name: DB_URL_0
+              value: jdbc:postgresql://infra-postgres-postgresql.infra.svc.cluster.local:5432/nacos
+            - name: DB_USER
+              value: nacos
+            - name: DB_PASSWORD
+              value: Sherlock8962.
+            - name: NACOS_AUTH_ENABLE
+              value: "false"
+          readinessProbe:
+            tcpSocket:
+              port: 8848
+            initialDelaySeconds: 40
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8848
+            initialDelaySeconds: 60
+            periodSeconds: 15
