@@ -20,6 +20,13 @@ spec:
           enabled: false
           tls:
             restEncryption: false
+        image:
+          repository: bitnamilegacy/elasticsearch
+        sysctlImage:
+          repository: bitnamilegacy/os-shell
+        volumePermissions:
+          image:
+            repository: bitnamilegacy/os-shell
         master:
           replicaCount: 1
           resourcesPreset: nano

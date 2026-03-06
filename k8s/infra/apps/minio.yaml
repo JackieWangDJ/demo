@@ -17,6 +17,10 @@ spec:
           security:
             allowInsecureImages: true
         mode: standalone
+        image:
+          repository: bitnamilegacy/minio
+        clientImage:
+          repository: bitnamilegacy/minio-client
         auth:
           rootUser: minioadmin
           rootPassword: Sherlock8962.
@@ -30,6 +34,8 @@ spec:
             api: "31000"
         console:
           enabled: true
+          image:
+            repository: bitnamilegacy/minio-object-browser
           service:
             type: NodePort
             nodePorts:
