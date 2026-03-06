@@ -10,7 +10,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: init-schema
-          image: bitnami/postgresql:16
+          image: docker.io/bitnami/postgresql:17.6.0-debian-12-r4
           env:
             - name: PGPASSWORD
               value: Sherlock8962.
