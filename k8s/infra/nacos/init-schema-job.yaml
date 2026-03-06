@@ -38,6 +38,12 @@ spec:
                 c_schema TEXT,
                 encrypted_data_key TEXT
               );
+              ALTER TABLE config_info ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(128) DEFAULT '';
+              ALTER TABLE config_info ADD COLUMN IF NOT EXISTS c_desc VARCHAR(256);
+              ALTER TABLE config_info ADD COLUMN IF NOT EXISTS c_use VARCHAR(64);
+              ALTER TABLE config_info ADD COLUMN IF NOT EXISTS effect VARCHAR(64);
+              ALTER TABLE config_info ADD COLUMN IF NOT EXISTS type VARCHAR(64);
+              ALTER TABLE config_info ADD COLUMN IF NOT EXISTS encrypted_data_key TEXT;
               CREATE UNIQUE INDEX IF NOT EXISTS uk_configinfo_datagrouptenant
                 ON config_info (data_id, group_id, tenant_id);
 
@@ -206,4 +212,13 @@ spec:
                 action VARCHAR(8) NOT NULL,
                 PRIMARY KEY (role, resource, action)
               );
+
+              INSERT INTO users(username, password, enabled)
+              VALUES ('nacos', '$2b$10$2PlbVvtejQyXSgWRsGpft.MgTtE3K/i.9XyVbPpwUlKocD3zWuUXu', TRUE)
+              ON CONFLICT (username)
+              DO UPDATE SET password = EXCLUDED.password, enabled = TRUE;
+
+              INSERT INTO roles(username, role)
+              VALUES ('nacos', 'ROLE_ADMIN')
+              ON CONFLICT (username, role) DO NOTHING;
               SQL
