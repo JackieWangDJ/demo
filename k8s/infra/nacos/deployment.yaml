@@ -13,6 +13,35 @@ spec:
       labels:
         app: nacos
     spec:
+      initContainers:
+        - name: download-pg-plugin
+          image: curlimages/curl:8.12.1
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              curl -fL --retry 5 --retry-delay 2 \
+                https://repo1.maven.org/maven2/com/pig4cloud/plugin/nacos-datasource-plugin-postgresql/0.0.5/nacos-datasource-plugin-postgresql-0.0.5.jar \
+                -o /plugins/nacos-datasource-plugin-postgresql-0.0.5.jar
+              curl -fL --retry 5 --retry-delay 2 \
+                https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.5/postgresql-42.7.5.jar \
+                -o /plugins/postgresql-42.7.5.jar
+          volumeMounts:
+            - name: nacos-plugins
+              mountPath: /plugins
+        - name: wait-for-postgres
+          image: docker.io/bitnamilegacy/postgresql:17.6.0-debian-12-r4
+          env:
+            - name: PGPASSWORD
+              value: Sherlock8962.
+          command:
+            - /bin/bash
+            - -ec
+            - |
+              until psql -h infra-postgres-postgresql -U nacos -d nacos -c 'select 1' >/dev/null 2>&1; do
+                echo "waiting for postgres..."
+                sleep 5
+              done
       containers:
         - name: nacos
           image: nacos/nacos-server:v2.5.1
@@ -24,8 +53,24 @@ spec:
               value: standalone
             - name: PREFER_HOST_MODE
               value: hostname
+            - name: SPRING_DATASOURCE_PLATFORM
+              value: postgresql
+            - name: DB_NUM
+              value: "1"
+            - name: DB_URL_0
+              value: jdbc:postgresql://infra-postgres-postgresql.infra.svc.cluster.local:5432/nacos
+            - name: DB_USER
+              value: nacos
+            - name: DB_PASSWORD
+              value: Sherlock8962.
             - name: NACOS_AUTH_ENABLE
               value: "false"
+          volumeMounts:
+            - name: nacos-plugins
+              mountPath: /home/nacos/plugins
+            - name: nacos-custom-config
+              mountPath: /home/nacos/conf/application.properties
+              subPath: application.properties
           readinessProbe:
             tcpSocket:
               port: 8848
@@ -36,3 +81,9 @@ spec:
               port: 8848
             initialDelaySeconds: 60
             periodSeconds: 15
+      volumes:
+        - name: nacos-plugins
+          emptyDir: {}
+        - name: nacos-custom-config
+          configMap:
+            name: nacos-custom-config

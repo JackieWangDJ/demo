@@ -23,8 +23,168 @@ spec:
                 id BIGSERIAL PRIMARY KEY,
                 data_id VARCHAR(255) NOT NULL,
                 group_id VARCHAR(255),
-                content TEXT,
-                gmt_create TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                gmt_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                content TEXT NOT NULL,
+                md5 VARCHAR(32),
+                gmt_create TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                gmt_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                src_user TEXT,
+                src_ip VARCHAR(50),
+                app_name VARCHAR(128),
+                tenant_id VARCHAR(128) DEFAULT '',
+                c_desc VARCHAR(256),
+                c_use VARCHAR(64),
+                effect VARCHAR(64),
+                type VARCHAR(64),
+                c_schema TEXT,
+                encrypted_data_key TEXT
+              );
+              CREATE UNIQUE INDEX IF NOT EXISTS uk_configinfo_datagrouptenant
+                ON config_info (data_id, group_id, tenant_id);
+
+              CREATE TABLE IF NOT EXISTS config_info_aggr (
+                id BIGSERIAL PRIMARY KEY,
+                data_id VARCHAR(255) NOT NULL,
+                group_id VARCHAR(255) NOT NULL,
+                datum_id VARCHAR(255) NOT NULL,
+                content TEXT NOT NULL,
+                gmt_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                app_name VARCHAR(128),
+                tenant_id VARCHAR(128) DEFAULT ''
+              );
+              CREATE UNIQUE INDEX IF NOT EXISTS uk_configinfoaggr_datagrouptenantdatum
+                ON config_info_aggr (data_id, group_id, tenant_id, datum_id);
+
+              CREATE TABLE IF NOT EXISTS config_info_beta (
+                id BIGSERIAL PRIMARY KEY,
+                data_id VARCHAR(255) NOT NULL,
+                group_id VARCHAR(128) NOT NULL,
+                app_name VARCHAR(128),
+                content TEXT NOT NULL,
+                beta_ips VARCHAR(1024),
+                md5 VARCHAR(32),
+                gmt_create TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                gmt_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                src_user TEXT,
+                src_ip VARCHAR(50),
+                tenant_id VARCHAR(128) DEFAULT '',
+                encrypted_data_key TEXT
+              );
+              CREATE UNIQUE INDEX IF NOT EXISTS uk_configinfobeta_datagrouptenant
+                ON config_info_beta (data_id, group_id, tenant_id);
+
+              CREATE TABLE IF NOT EXISTS config_info_tag (
+                id BIGSERIAL PRIMARY KEY,
+                data_id VARCHAR(255) NOT NULL,
+                group_id VARCHAR(128) NOT NULL,
+                tenant_id VARCHAR(128) DEFAULT '',
+                tag_id VARCHAR(128) NOT NULL,
+                app_name VARCHAR(128),
+                content TEXT NOT NULL,
+                md5 VARCHAR(32),
+                gmt_create TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                gmt_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                src_user TEXT,
+                src_ip VARCHAR(50)
+              );
+              CREATE UNIQUE INDEX IF NOT EXISTS uk_configinfotag_datagrouptenanttag
+                ON config_info_tag (data_id, group_id, tenant_id, tag_id);
+
+              CREATE TABLE IF NOT EXISTS config_tags_relation (
+                id BIGSERIAL PRIMARY KEY,
+                tag_name VARCHAR(128) NOT NULL,
+                tag_type VARCHAR(64),
+                data_id VARCHAR(255) NOT NULL,
+                group_id VARCHAR(128) NOT NULL,
+                tenant_id VARCHAR(128) DEFAULT '',
+                nid BIGINT NOT NULL
+              );
+              CREATE UNIQUE INDEX IF NOT EXISTS uk_configtagrelation_configidtag
+                ON config_tags_relation (id, tag_name, tag_type);
+              CREATE INDEX IF NOT EXISTS idx_configtagrelation_tenant
+                ON config_tags_relation (tenant_id);
+
+              CREATE TABLE IF NOT EXISTS group_capacity (
+                id BIGSERIAL PRIMARY KEY,
+                group_id VARCHAR(128) NOT NULL DEFAULT '',
+                quota INTEGER NOT NULL DEFAULT 0,
+                usage INTEGER NOT NULL DEFAULT 0,
+                max_size INTEGER NOT NULL DEFAULT 0,
+                max_aggr_count INTEGER NOT NULL DEFAULT 0,
+                max_aggr_size INTEGER NOT NULL DEFAULT 0,
+                max_history_count INTEGER NOT NULL DEFAULT 0,
+                gmt_create TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                gmt_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+              );
+              CREATE UNIQUE INDEX IF NOT EXISTS uk_groupcapacity_groupid
+                ON group_capacity (group_id);
+
+              CREATE TABLE IF NOT EXISTS his_config_info (
+                id BIGSERIAL PRIMARY KEY,
+                nid BIGINT NOT NULL,
+                data_id VARCHAR(255) NOT NULL,
+                group_id VARCHAR(128) NOT NULL,
+                app_name VARCHAR(128),
+                content TEXT NOT NULL,
+                md5 VARCHAR(32),
+                gmt_create TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                gmt_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                src_user TEXT,
+                src_ip VARCHAR(50),
+                op_type CHAR(10),
+                tenant_id VARCHAR(128) DEFAULT '',
+                encrypted_data_key TEXT
+              );
+              CREATE INDEX IF NOT EXISTS idx_hisconfiginfo_nid ON his_config_info (nid);
+              CREATE INDEX IF NOT EXISTS idx_hisconfiginfo_gmtcreate ON his_config_info (gmt_create);
+              CREATE INDEX IF NOT EXISTS idx_hisconfiginfo_datagrouptenant
+                ON his_config_info (data_id, group_id, tenant_id);
+
+              CREATE TABLE IF NOT EXISTS tenant_capacity (
+                id BIGSERIAL PRIMARY KEY,
+                tenant_id VARCHAR(128) NOT NULL DEFAULT '',
+                quota INTEGER NOT NULL DEFAULT 0,
+                usage INTEGER NOT NULL DEFAULT 0,
+                max_size INTEGER NOT NULL DEFAULT 0,
+                max_aggr_count INTEGER NOT NULL DEFAULT 0,
+                max_aggr_size INTEGER NOT NULL DEFAULT 0,
+                max_history_count INTEGER NOT NULL DEFAULT 0,
+                gmt_create TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                gmt_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+              );
+              CREATE UNIQUE INDEX IF NOT EXISTS uk_tenantcapacity_tenantid
+                ON tenant_capacity (tenant_id);
+
+              CREATE TABLE IF NOT EXISTS tenant_info (
+                id BIGSERIAL PRIMARY KEY,
+                kp VARCHAR(128) NOT NULL,
+                tenant_id VARCHAR(128) DEFAULT '',
+                tenant_name VARCHAR(128) DEFAULT '',
+                tenant_desc VARCHAR(256),
+                create_source VARCHAR(32),
+                gmt_create BIGINT NOT NULL,
+                gmt_modified BIGINT NOT NULL
+              );
+              CREATE UNIQUE INDEX IF NOT EXISTS uk_tenantinfo_tenantid
+                ON tenant_info (tenant_id);
+              CREATE INDEX IF NOT EXISTS idx_tenantinfo_kp_tenantid
+                ON tenant_info (kp, tenant_id);
+
+              CREATE TABLE IF NOT EXISTS users (
+                username VARCHAR(50) PRIMARY KEY,
+                password VARCHAR(500) NOT NULL,
+                enabled BOOLEAN NOT NULL
+              );
+
+              CREATE TABLE IF NOT EXISTS roles (
+                username VARCHAR(50) NOT NULL,
+                role VARCHAR(50) NOT NULL,
+                PRIMARY KEY (username, role)
+              );
+
+              CREATE TABLE IF NOT EXISTS permissions (
+                role VARCHAR(50) NOT NULL,
+                resource VARCHAR(512) NOT NULL,
+                action VARCHAR(8) NOT NULL,
+                PRIMARY KEY (role, resource, action)
               );
               SQL
