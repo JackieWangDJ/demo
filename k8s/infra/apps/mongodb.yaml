@@ -30,7 +30,15 @@ spec:
           type: NodePort
           nodePorts:
             mongodb: "30717"
-        resourcesPreset: nano
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        strategy:
+          type: Recreate
         persistence:
           enabled: true
           size: 8Gi
