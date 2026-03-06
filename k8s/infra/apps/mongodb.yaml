@@ -37,7 +37,7 @@ spec:
           limits:
             cpu: 500m
             memory: 512Mi
-        strategy:
+        updateStrategy:
           type: Recreate
         persistence:
           enabled: true
