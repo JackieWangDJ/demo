@@ -16,6 +16,8 @@ spec:
         global:
           security:
             allowInsecureImages: true
+        image:
+          repository: bitnamilegacy/kafka
         listeners:
           client:
             protocol: PLAINTEXT
