@@ -15,6 +15,10 @@ spec:
           username: nacos
           password: Sherlock8962.
           database: nacos
+        image:
+          registry: docker.io
+          repository: bitnamilegacy/postgresql
+          tag: 17.6.0-debian-12-r4
         primary:
           persistence:
             enabled: true

@@ -15,6 +15,10 @@ spec:
         auth:
           enabled: true
           password: Sherlock8962.
+        image:
+          registry: docker.io
+          repository: bitnamilegacy/redis
+          tag: 8.0.2-debian-12-r3
         master:
           persistence:
             enabled: true
