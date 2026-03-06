@@ -71,12 +71,25 @@ spec:
               value: security
             - name: NACOS_AUTH_TOKEN
               value: I9PC3Qw8IA9wfc3Z+JfAf02k3tjoPxi3vdqmbw3WbW4=
+            - name: JVM_XMS
+              value: 256m
+            - name: JVM_XMX
+              value: 512m
+            - name: JVM_XMN
+              value: 128m
           volumeMounts:
             - name: nacos-plugins
               mountPath: /home/nacos/plugins
             - name: nacos-custom-config
               mountPath: /home/nacos/conf/application.properties
               subPath: application.properties
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
           readinessProbe:
             tcpSocket:
               port: 8848
