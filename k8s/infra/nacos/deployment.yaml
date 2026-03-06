@@ -70,7 +70,7 @@ spec:
             - name: NACOS_AUTH_IDENTITY_VALUE
               value: security
             - name: NACOS_AUTH_TOKEN
-              value: bXlfbmFjb3NfYXV0aF90b2tlbl9zZWNyZXRfa2V5XzIwMjY=
+              value: I9PC3Qw8IA9wfc3Z+JfAf02k3tjoPxi3vdqmbw3WbW4=
           volumeMounts:
             - name: nacos-plugins
               mountPath: /home/nacos/plugins
