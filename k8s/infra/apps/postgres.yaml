@@ -11,6 +11,9 @@ spec:
     targetRevision: 16.7.27
     helm:
       values: |
+        global:
+          security:
+            allowInsecureImages: true
         auth:
           username: nacos
           password: Sherlock8962.
