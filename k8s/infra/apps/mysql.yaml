@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: infra-mysql
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: mysql
+    targetRevision: 14.0.3
+    helm:
+      values: |
+        global:
+          security:
+            allowInsecureImages: true
+        architecture: standalone
+        auth:
+          rootPassword: Sherlock8962.
+          createDatabase: true
+          database: demo
+          username: demo
+          password: Sherlock8962.
+        image:
+          registry: docker.io
+          repository: bitnamilegacy/mysql
+          tag: 9.4.0-debian-12-r1
+        primary:
+          persistence:
+            enabled: true
+            size: 8Gi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: infra
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

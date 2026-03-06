@@ -4,3 +4,4 @@ namespace: infra
 resources:
   - postgres-nodeport.yaml
   - redis-nodeport.yaml
+  - mysql-nodeport.yaml
