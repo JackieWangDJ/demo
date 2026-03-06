@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: infra-mongodb
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: mongodb
+    targetRevision: 18.6.1
+    helm:
+      values: |
+        global:
+          security:
+            allowInsecureImages: true
+        architecture: standalone
+        auth:
+          rootUser: root
+          rootPassword: Sherlock8962.
+          usernames:
+            - social
+          passwords:
+            - Sherlock8962.
+          databases:
+            - social
+        service:
+          type: NodePort
+          nodePorts:
+            mongodb: "30717"
+        persistence:
+          enabled: true
+          size: 8Gi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: infra
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
