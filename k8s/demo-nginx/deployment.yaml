@@ -17,6 +17,6 @@ spec:
         - name: harbor-pull
       containers:
         - name: app
-          image: harbor.local:8443/demo/nginx:bf173e3fbfe1ea43bc174c53f5328995ec65245b
+          image: harbor.local:8443/demo/nginx:759771d5ac39d5435e6bd0175c5cbd8fde787767
           ports:
             - containerPort: 8888
