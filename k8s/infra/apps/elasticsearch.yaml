@@ -31,17 +31,20 @@ spec:
           node:
             store:
               allow_mmap: false
+          xpack:
+            ml:
+              enabled: false
         master:
           masterOnly: false
           replicaCount: 1
-          heapSize: 384m
+          heapSize: 256m
           resources:
             requests:
               cpu: 100m
-              memory: 384Mi
+              memory: 256Mi
             limits:
-              cpu: "1"
-              memory: 1Gi
+              cpu: 800m
+              memory: 768Mi
           persistence:
             enabled: true
             size: 8Gi

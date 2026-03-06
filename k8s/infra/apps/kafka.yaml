@@ -34,7 +34,7 @@ spec:
         controller:
           replicaCount: 1
           controllerOnly: false
-          heapOpts: -Xms384m -Xmx384m
+          heapOpts: -Xms256m -Xmx256m
           overrideConfiguration:
             log.cleaner.enable: "false"
             offsets.topic.replication.factor: "1"
@@ -43,10 +43,10 @@ spec:
           resources:
             requests:
               cpu: 100m
-              memory: 384Mi
+              memory: 256Mi
             limits:
-              cpu: "1"
-              memory: 1Gi
+              cpu: 800m
+              memory: 768Mi
           persistence:
             enabled: true
             size: 8Gi
