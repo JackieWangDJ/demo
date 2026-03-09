@@ -5,6 +5,7 @@ resources:
   - init-schema-job.yaml
   - deployment.yaml
   - service.yaml
+  - service-nodeport.yaml
   - ingress.yaml
 configMapGenerator:
   - name: nacos-custom-config
